@@ -1,0 +1,19 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f82f04280fba4814da2d1b05190f8c9f, type: 3}
+  m_Name: Color_Red
+  m_EditorClassIdentifier: Assembly-CSharp::ColorPalette
+  colorName: Red
+  defaultIcon: {fileID: 887387325851772620, guid: 54394d06dbe375a489d0cba3e5248cda, type: 3}
+  IconA: {fileID: 5413993767572339121, guid: bf3e92253283a414d8525affa82ab67e, type: 3}
+  IconB: {fileID: -8329150480449018202, guid: 2acb2a0e1a38c6e4bb6ac93d07b90cc4, type: 3}
+  IconC: {fileID: -257787592545182917, guid: ab0cf810cd12c0741908de2a5abb2f8d, type: 3}

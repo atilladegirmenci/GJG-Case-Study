@@ -1,0 +1,19 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f82f04280fba4814da2d1b05190f8c9f, type: 3}
+  m_Name: Color_Purple
+  m_EditorClassIdentifier: Assembly-CSharp::ColorPalette
+  colorName: Purple
+  defaultIcon: {fileID: 8161472552560778960, guid: bc18c767afdf27c40a039085119572d6, type: 3}
+  IconA: {fileID: -6416537123964203564, guid: 47a63a5a7de4f964b88d44b78a7df26e, type: 3}
+  IconB: {fileID: -2693315669398477313, guid: 21b5620d5ed762142a93aad5e4d75ee1, type: 3}
+  IconC: {fileID: 1386842339749069192, guid: ec95b1b972f62ba42a5f4dd4081e2b39, type: 3}
