@@ -12,12 +12,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e118c9e4458568549a78d00ff197bc19, type: 3}
   m_Name: LevelConfig
   m_EditorClassIdentifier: Assembly-CSharp::LevelConfig
-  rows: 9
-  cols: 7
+  rows: 6
+  cols: 5
   availableColors:
   - {fileID: 11400000, guid: ebc6715b1ea9d4f4380affb91a22aa86, type: 2}
   - {fileID: 11400000, guid: 100cf830b1802b640b2c9445f79d6c1c, type: 2}
-  - {fileID: 11400000, guid: 17d178cff98380f46a9b1614a46315c5, type: 2}
-  - {fileID: 11400000, guid: b285811c5aaab94449f9b0552c7ad2a8, type: 2}
   - {fileID: 11400000, guid: 84f48605df1d9c14c900e89577d0371b, type: 2}
+  - {fileID: 11400000, guid: b285811c5aaab94449f9b0552c7ad2a8, type: 2}
+  - {fileID: 11400000, guid: 17d178cff98380f46a9b1614a46315c5, type: 2}
   - {fileID: 11400000, guid: 5abfb921674ab5c49bac677701c6812c, type: 2}
+  maxMoves: 30

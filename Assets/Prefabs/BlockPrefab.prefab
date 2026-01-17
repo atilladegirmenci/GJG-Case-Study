@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 2876897400103742068}
   - component: {fileID: 1011358694614023337}
   - component: {fileID: 100113981431503844}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: BlockPrefab
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -107,7 +107,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BlockView
   spriteRenderer: {fileID: 3721927226338344366}
-  fallSpeed: 15
+  jellyEffectMagnitude: 0.05
+  jellyEffectDuration: 0.1
+  disappearDuration: 0.2
 --- !u!114 &1011358694614023337
 MonoBehaviour:
   m_ObjectHideFlags: 0

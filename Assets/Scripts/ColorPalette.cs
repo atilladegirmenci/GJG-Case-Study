@@ -1,6 +1,6 @@
 using UnityEngine;
 
-[CreateAssetMenu(fileName = "NewColor", menuName = "Game/Color")]
+[CreateAssetMenu(fileName = "NewColorPalette", menuName = "Game/BlockColor")]
 public class ColorPalette : ScriptableObject
 {
     public string colorName;
@@ -10,7 +10,7 @@ public class ColorPalette : ScriptableObject
     public Sprite IconB;
     public Sprite IconC;
 
-    //[Header("VISUAL EFFECTS")]
-    //for spawning correct colored effect. this will be addded!!
+    [Header("VISUAL EFFECTS")]
+    public Color particleColor;
 
 }

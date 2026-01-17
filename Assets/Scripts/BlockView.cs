@@ -7,6 +7,12 @@ public class BlockView : MonoBehaviour
 
     [SerializeField] private SpriteRenderer spriteRenderer;
 
+    [Header("VISUAL EFFECETS")]
+    [SerializeField] private float jellyEffectMagnitude = 0.05f;
+    [SerializeField] private float jellyEffectDuration = 0.1f;
+    [SerializeField] private float disappearDuration = 0.2f;
+
+
     private void Awake()
     {
         if (spriteRenderer == null) spriteRenderer = GetComponent<SpriteRenderer>();
@@ -33,19 +39,37 @@ public class BlockView : MonoBehaviour
     public void MoveToPosition(Vector3 targetPos, float duration)
     {
         transform.DOKill();
-        transform.DOMove(targetPos, duration).SetEase(Ease.OutBounce);
+        transform.DOMove(targetPos, duration)
+            .SetEase(Ease.InQuad)
+            .OnComplete(() =>
+            {
+                // 2. JELİBON EFEKTİ (SQUASH & STRETCH)
+                transform.DOPunchScale(new Vector3(jellyEffectMagnitude, -jellyEffectMagnitude, 0), jellyEffectDuration, 10, 1);
+            });
     }
     // Called on explosion
     public void OnBlast()
     {
         transform.DOKill();
 
+        var col = GetComponent<Collider2D>();
+        if (col) col.enabled = false;
+
         //particle effects wil be added here 
-        transform.DOScale(Vector3.zero, 0.1f)
+        transform.DOScale(Vector3.zero, disappearDuration)
             .SetEase(Ease.InBack)
             .OnComplete(() =>
             {
-                Destroy(gameObject);
+                if (BlockPool.Instance != null)
+                {
+                    // Re-enable collider for next use
+                    if (col) col.enabled = true;
+                    BlockPool.Instance.ReturnBlock(this);
+                }
+                else
+                {
+                    Destroy(gameObject); // Fallback
+                }
             });
 
     }

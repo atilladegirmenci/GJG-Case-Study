@@ -10,18 +10,12 @@ public class GridManagerEditor : Editor
 
         GridManager script = (GridManager)target;
 
-        GUILayout.Space(10);
 
-        if (GUILayout.Button("Generate Grid", GUILayout.Height(30)))
+        GUILayout.Space(20);
+
+        if (GUILayout.Button("Force Deadlock", GUILayout.Height(50)))
         {
-            script.GenerateGridForEditor();
-        }
-
-        GUILayout.Space(5);
-
-        if (GUILayout.Button("Clear Grid", GUILayout.Height(20)))
-        {
-            script.ClearGrid();
+            script.ForceDeadlockPattern();
         }
     }
 }

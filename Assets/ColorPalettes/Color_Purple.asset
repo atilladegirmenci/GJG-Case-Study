@@ -17,3 +17,4 @@ MonoBehaviour:
   IconA: {fileID: -6416537123964203564, guid: 47a63a5a7de4f964b88d44b78a7df26e, type: 3}
   IconB: {fileID: -2693315669398477313, guid: 21b5620d5ed762142a93aad5e4d75ee1, type: 3}
   IconC: {fileID: 1386842339749069192, guid: ec95b1b972f62ba42a5f4dd4081e2b39, type: 3}
+  particleColor: {r: 0.5803922, g: 0.03137255, b: 0.9058824, a: 1}

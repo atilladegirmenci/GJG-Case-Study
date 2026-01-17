@@ -490,6 +490,7 @@ MonoBehaviour:
   spaceBetweenCols: 0.08
   spaceBetweenRows: 0.08
   moveTime: 0.35
+  blastEffectPrefab: {fileID: 9067124179126928866, guid: be6f34c68e934f6418a9339560354618, type: 3}
 --- !u!4 &977414006
 Transform:
   m_ObjectHideFlags: 0

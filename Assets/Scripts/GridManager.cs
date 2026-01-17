@@ -1,12 +1,12 @@
 using UnityEngine;
 using System.Collections.Generic;
 using System.Collections;
+using DG.Tweening;
 
 public class GridManager : MonoBehaviour
 {
     [Header("Core References")]
     [SerializeField] private LevelConfig currentLevelConfig;
-    [SerializeField] private GameObject blockPrefab;
     [SerializeField] private Transform boardContainer;
 
     [Header("Board Dimensions")]
@@ -16,17 +16,21 @@ public class GridManager : MonoBehaviour
     [Header("Spacing & Animation")]
     [SerializeField] private float spaceBetweenCols;
     [SerializeField] private float spaceBetweenRows;
-    [SerializeField] private float moveTime;
+    [SerializeField] private float fallTime;
+    [SerializeField] private GameObject blastEffectPrefab;
 
-    // Private State
+    [Header("Debug Settings")]
+    public bool showGridPreview = true;
+
     private GridNode[,] _grid;
     private float _cellSize;
     private Vector2 _boardOffset;
     private InputManager _inputManager; // Cached reference
 
-    // Public Properties
     public float CellSize => _cellSize;
     public Vector2 BoardOffset => _boardOffset;
+
+
 
     // Direction array for neighbors (Up, Down, Left, Right)
     private readonly Vector2Int[] _directions = new Vector2Int[]
@@ -48,6 +52,16 @@ public class GridManager : MonoBehaviour
         {
             Debug.LogError("GridManager: Level config is not assigned.");
             return;
+        }
+
+        int totalCells = currentLevelConfig.rows * currentLevelConfig.cols;
+
+        // Grid boyutu kadar + %25 yedek (refill animasyonları sırasında lazım olabilir)
+        int poolSize = Mathf.CeilToInt(totalCells * 1.25f);
+
+        if (BlockPool.Instance != null)
+        {
+            BlockPool.Instance.InitializePool(poolSize);
         }
 
         CalculateBoardLayout();
@@ -109,22 +123,22 @@ public class GridManager : MonoBehaviour
 
     private BlockView SpawnBlockView(GridNode node, int x, int y, Vector3 spawnPosition)
     {
-        // Instantiate at the specific 'spawnPosition' requested by the caller
-        GameObject blockObj = Instantiate(blockPrefab, spawnPosition, Quaternion.identity, boardContainer);
-        blockObj.name = $"Block_{x}_{y}";
+        BlockView view = BlockPool.Instance.GetBlock();
 
-        // Scale adjustment
-        blockObj.transform.localScale = Vector3.one * _cellSize / 2;
-
-        BlockView view = blockObj.GetComponent<BlockView>();
+        // Setup Transform
+        view.transform.SetParent(boardContainer);
+        view.transform.position = spawnPosition;
+        view.transform.rotation = Quaternion.identity;
+        view.name = $"Block_{x}_{y}";
+        view.transform.localScale = Vector3.one * _cellSize / 2;
 
         // Get sprite and initialize
         var palette = currentLevelConfig.availableColors[node.colorIndex];
         view.Init(spawnPosition, palette.defaultIcon);
 
         // Setup Context for Raycast
-        BlockContext context = blockObj.GetComponent<BlockContext>();
-        if (context == null) context = blockObj.AddComponent<BlockContext>();
+        BlockContext context = view.GetComponent<BlockContext>();
+        if (context == null) context = view.gameObject.AddComponent<BlockContext>();
         context.SetCoordinates(x, y);
 
         // Link Logic and View
@@ -145,14 +159,16 @@ public class GridManager : MonoBehaviour
         GridNode startNode = _grid[x, y];
         if (startNode.isEmpty) return;
 
-        // Run Flood Fill
         List<GridNode> matches = GetMatches(startNode);
+        if (matches.Count < 2) return;
 
-        //Minimum 2 blocks
-        if (matches.Count >= 2)
+        if (GameManager.Instance != null)
         {
-            BlastBlocks(matches);
+            bool canMove = GameManager.Instance.TryUseMove();
+            if (!canMove) return; // No moves left!
         }
+
+        BlastBlocks(matches);
     }
 
     private List<GridNode> GetMatches(GridNode startNode)
@@ -193,9 +209,31 @@ public class GridManager : MonoBehaviour
 
     private void BlastBlocks(List<GridNode> nodesToBlast)
     {
+        int colorIndex = nodesToBlast[0].colorIndex;
+        ColorPalette sharedPalette = currentLevelConfig.availableColors[colorIndex];
+
+        if (GameManager.Instance != null)
+        {
+            GameManager.Instance.AddScore(nodesToBlast.Count);
+        }
+
         foreach (GridNode node in nodesToBlast)
         {
             node.isEmpty = true;
+
+            if (blastEffectPrefab != null)
+            {
+                // Instantiate at block position
+                Vector3 pos = GetWorldPosition(node.x, node.y);
+                GameObject particleObj = Instantiate(blastEffectPrefab, pos + new Vector3(0, 0, -5), Quaternion.identity);
+
+                ParticleSystem ps = particleObj.GetComponent<ParticleSystem>();
+                if (ps != null)
+                {
+                    var main = ps.main;
+                    main.startColor = sharedPalette.particleColor; // Set the color dynamically
+                }
+            }
 
             if (node.assignedView != null)
             {
@@ -252,7 +290,7 @@ public class GridManager : MonoBehaviour
                         node.y = y;
 
                         Vector3 targetPos = GetWorldPosition(x, y);
-                        node.assignedView.MoveToPosition(targetPos, moveTime);
+                        node.assignedView.MoveToPosition(targetPos, fallTime);
 
                         // Update Context for Raycast
                         var context = node.assignedView.GetComponent<BlockContext>();
@@ -270,17 +308,25 @@ public class GridManager : MonoBehaviour
             }
         }
 
-        yield return new WaitForSeconds(moveTime);
+        yield return new WaitForSeconds(fallTime);
 
         // Visual Update 1: Show new groups formed by falling blocks
         UpdateAllGroupVisuals();
 
         RefillBoard();
 
-        yield return new WaitForSeconds(moveTime);
+        yield return new WaitForSeconds(fallTime);
 
         // Visual Update 2: Show new groups formed by new blocks
-        UpdateAllGroupVisuals();
+        bool hasMoves = UpdateAllGroupVisuals();
+
+        // if deadlock => shuffle
+        if (!hasMoves)
+        {
+            yield return new WaitForSeconds(0.5f);
+            ShuffleBoard();
+            yield return new WaitForSeconds(0.5f);
+        }
 
         // Unlock Input
         if (_inputManager != null) _inputManager.SetInputActive(true);
@@ -310,21 +356,86 @@ public class GridManager : MonoBehaviour
                     BlockView view = SpawnBlockView(newNode, x, y, startPos);
 
                     // Now command the view to move (Animation Logic belongs here)
-                    view.MoveToPosition(targetPos, moveTime);
+                    view.MoveToPosition(targetPos, fallTime);
                 }
             }
         }
+    }
+    private void ShuffleBoard()
+    {
+        Debug.Log("Deadlock detected! Shuffling board...");
+
+        int rows = currentLevelConfig.rows;
+        int cols = currentLevelConfig.cols;
+
+        List<GridNode> activeNodes = new List<GridNode>();
+        List<int> colors = new List<int>();
+
+        // 1. Collect all active nodes and their current colors
+        for (int x = 0; x < cols; x++)
+        {
+            for (int y = 0; y < rows; y++)
+            {
+                // Skip empty slots
+                if (!_grid[x, y].isEmpty)
+                {
+                    activeNodes.Add(_grid[x, y]);
+                    colors.Add(_grid[x, y].colorIndex);
+                }
+            }
+        }
+
+        // 2. Shuffle Colors (Fisher-Yates Algorithm)
+        for (int i = 0; i < colors.Count; i++)
+        {
+            int temp = colors[i];
+            int randomIndex = Random.Range(i, colors.Count);
+            colors[i] = colors[randomIndex];
+            colors[randomIndex] = temp;
+        }
+
+        // 3. Reassign colors back to nodes & Animate
+        for (int i = 0; i < activeNodes.Count; i++)
+        {
+            GridNode node = activeNodes[i];
+            node.colorIndex = colors[i]; // Assign new color
+
+            // Update Visuals
+            if (node.assignedView != null)
+            {
+                var palette = currentLevelConfig.availableColors[node.colorIndex];
+
+                // Reset to default icon first (rockets/bombs will be calculated next)
+                node.assignedView.SetSprite(palette.defaultIcon);
+
+                // SHAKE ANIMATION: Give a feedback to player that board is shuffled
+                // Vector3.forward * 20 -> Rotate 20 degrees on Z axis
+                // 0.5f -> Duration
+                node.assignedView.transform.DOPunchRotation(Vector3.forward * 20, 0.5f);
+            }
+        }
+
+        // 4. Update Visuals (Bombs/Rockets) AND Check for Deadlock again
+        // Note: UpdateAllGroupVisuals now returns 'true' if there is at least one valid move.
+        bool hasValidMoves = UpdateAllGroupVisuals();
+
+        // 5. Recursion Safety: 
+        // If by bad luck the shuffle resulted in another deadlock, shuffle again immediately.
+        if (!hasValidMoves) ShuffleBoard();
+
     }
 
     #endregion
 
     #region Visualization & Helpers
 
-    private void UpdateAllGroupVisuals()
+    private bool UpdateAllGroupVisuals()
     {
         int rows = currentLevelConfig.rows;
         int cols = currentLevelConfig.cols;
         bool[,] globalVisited = new bool[cols, rows];
+
+        bool hasAnyValidMove = false;
 
         for (int x = 0; x < cols; x++)
         {
@@ -341,9 +452,15 @@ public class GridManager : MonoBehaviour
                     }
 
                     UpdateGroupSprites(group);
+
+                    if (group.Count >= 2)
+                    {
+                        hasAnyValidMove = true; // no deadlock
+                    }
                 }
             }
         }
+        return hasAnyValidMove;
     }
 
     private void UpdateGroupSprites(List<GridNode> group)
@@ -392,24 +509,102 @@ public class GridManager : MonoBehaviour
                  y >= 0 && y < currentLevelConfig.rows;
     }
 
+    private void OnDrawGizmos()
+    {
+        // Sadece showGridPreview açıksa ve Config atalıysa çiz
+        if (!showGridPreview || currentLevelConfig == null) return;
+
+        // Grid hesaplamasını simüle et (Değerler değişince anlık güncellenir)
+        int rows = currentLevelConfig.rows;
+        int cols = currentLevelConfig.cols;
+
+        float totalGapW = (cols - 1) * spaceBetweenCols;
+        float totalGapH = (rows - 1) * spaceBetweenRows;
+        float availW = targetBoardWidth - totalGapW;
+        float availH = targetBoardHeight - totalGapH;
+
+        // Bölme sıfır hatası olmasın
+        if (cols == 0 || rows == 0) return;
+
+        float size = Mathf.Min(availW / cols, availH / rows);
+
+        float totalW = (cols * size) + totalGapW;
+        float totalH = (rows * size) + totalGapH;
+        float startX = -(totalW / 2f) + (size / 2f);
+        float startY = -(totalH / 2f) + (size / 2f);
+        Vector2 offset = new Vector2(startX, startY);
+
+        // Grid Rengi (Yeşil)
+        Gizmos.color = Color.green;
+
+        // Blokların yerini tel kafes olarak çiz
+        for (int x = 0; x < cols; x++)
+        {
+            for (int y = 0; y < rows; y++)
+            {
+                float xPos = x * (size + spaceBetweenCols) + offset.x;
+                float yPos = y * (size + spaceBetweenRows) + offset.y;
+
+                Vector3 center = new Vector3(xPos, yPos, 0);
+
+                // Eğer boardContainer varsa onun pozisyonuna göre taşı
+                if (boardContainer != null) center = boardContainer.TransformPoint(center);
+                else center += transform.position;
+
+                Gizmos.DrawWireCube(center, Vector3.one * size);
+            }
+        }
+
+        // Sınır Çerçevesi (Mavi - Target Width/Height referansı)
+        Gizmos.color = new Color(0, 1, 1, 0.3f); // Cyan, yarı şeffaf
+        Vector3 boardCenter = (boardContainer != null) ? boardContainer.position : transform.position;
+        Gizmos.DrawCube(boardCenter, new Vector3(targetBoardWidth, targetBoardHeight, 1));
+    }
+
     #endregion
 
 #if UNITY_EDITOR
-    public void GenerateGridForEditor()
+    public void ForceDeadlockPattern()
     {
-        ClearGrid();
-        if (currentLevelConfig != null) CalculateBoardLayout();
-        CreateGrid();
-    }
-
-    public void ClearGrid()
-    {
-        if (boardContainer != null)
+        // make sure there is only 2 colors
+        if (currentLevelConfig.availableColors.Count < 2)
         {
-            while (boardContainer.childCount > 0)
+            Debug.LogError("only 2 colors needed for activating the deadlock cheat");
+            return;
+        }
+
+        int rows = currentLevelConfig.rows;
+        int cols = currentLevelConfig.cols;
+
+        // make grid checkered
+        for (int x = 0; x < cols; x++)
+        {
+            for (int y = 0; y < rows; y++)
             {
-                DestroyImmediate(boardContainer.GetChild(0).gameObject);
+                if (_grid[x, y].isEmpty) continue;
+
+                int cheatColorIndex = (x + y) % 2;
+
+                _grid[x, y].colorIndex = cheatColorIndex;
+
+                if (_grid[x, y].assignedView != null)
+                {
+                    var palette = currentLevelConfig.availableColors[cheatColorIndex];
+                    _grid[x, y].assignedView.SetSprite(palette.defaultIcon);
+
+                    _grid[x, y].assignedView.transform.localScale = Vector3.one * _cellSize / 2;
+                }
             }
+        }
+
+        Debug.Log("CHEAT ACTIVE: board has deadlocked");
+
+        bool hasMoves = UpdateAllGroupVisuals();
+        if (!hasMoves)
+        {
+            Debug.Log("system validated its a deadlock");
+
+            ShuffleBoard();
         }
     }
 #endif
