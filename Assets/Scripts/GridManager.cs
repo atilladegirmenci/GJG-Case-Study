@@ -216,6 +216,10 @@ public class GridManager : MonoBehaviour
         {
             GameManager.Instance.AddScore(nodesToBlast.Count);
         }
+        if (AudioManager.Instance != null)
+        {
+            AudioManager.Instance.PlayBlastSound();
+        }
 
         foreach (GridNode node in nodesToBlast)
         {
@@ -259,7 +263,7 @@ public class GridManager : MonoBehaviour
         int rows = currentLevelConfig.rows;
         int cols = currentLevelConfig.cols;
 
-        // PHASE 1: SHIFT DOWN
+        // SHIFT DOWN
         for (int x = 0; x < cols; x++)
         {
             List<GridNode> livingBlocks = new List<GridNode>();
@@ -371,12 +375,11 @@ public class GridManager : MonoBehaviour
         List<GridNode> activeNodes = new List<GridNode>();
         List<int> colors = new List<int>();
 
-        // 1. Collect all active nodes and their current colors
+        // Collect active nodes and colors
         for (int x = 0; x < cols; x++)
         {
             for (int y = 0; y < rows; y++)
             {
-                // Skip empty slots
                 if (!_grid[x, y].isEmpty)
                 {
                     activeNodes.Add(_grid[x, y]);
@@ -385,7 +388,7 @@ public class GridManager : MonoBehaviour
             }
         }
 
-        // 2. Shuffle Colors (Fisher-Yates Algorithm)
+        // Fisher-Yates Shuffle
         for (int i = 0; i < colors.Count; i++)
         {
             int temp = colors[i];
@@ -394,35 +397,29 @@ public class GridManager : MonoBehaviour
             colors[randomIndex] = temp;
         }
 
-        // 3. Reassign colors back to nodes & Animate
+        // Apply new colors and animate
         for (int i = 0; i < activeNodes.Count; i++)
         {
             GridNode node = activeNodes[i];
-            node.colorIndex = colors[i]; // Assign new color
+            node.colorIndex = colors[i];
 
-            // Update Visuals
             if (node.assignedView != null)
             {
                 var palette = currentLevelConfig.availableColors[node.colorIndex];
 
-                // Reset to default icon first (rockets/bombs will be calculated next)
+                // Reset to default icon before calculating groups
                 node.assignedView.SetSprite(palette.defaultIcon);
 
-                // SHAKE ANIMATION: Give a feedback to player that board is shuffled
-                // Vector3.forward * 20 -> Rotate 20 degrees on Z axis
-                // 0.5f -> Duration
+                // Shake feedback
                 node.assignedView.transform.DOPunchRotation(Vector3.forward * 20, 0.5f);
             }
         }
 
-        // 4. Update Visuals (Bombs/Rockets) AND Check for Deadlock again
-        // Note: UpdateAllGroupVisuals now returns 'true' if there is at least one valid move.
+        // Re-calculate groups and check for valid moves
         bool hasValidMoves = UpdateAllGroupVisuals();
 
-        // 5. Recursion Safety: 
-        // If by bad luck the shuffle resulted in another deadlock, shuffle again immediately.
+        // Retry if still deadlocked
         if (!hasValidMoves) ShuffleBoard();
-
     }
 
     #endregion

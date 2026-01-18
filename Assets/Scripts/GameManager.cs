@@ -1,5 +1,7 @@
 using UnityEngine;
 using System;
+using UnityEngine.SceneManagement;
+using System.Collections;
 
 public class GameManager : MonoBehaviour
 {
@@ -8,19 +10,24 @@ public class GameManager : MonoBehaviour
     [Header("Settings")]
     [SerializeField] private LevelConfig levelConfig;
     [SerializeField] private float comboTimeout = 2.0f;
+    [SerializeField] private float autoRestartDelay = 3.0f;
 
     private readonly float[] _multiplierLevels = { 1.0f, 1.1f, 1.2f, 1.5f, 2.0f, 3.0f, 5.0f };
 
-    // State
     public int Score { get; private set; }
+    public int HighScore { get; private set; }
     public int MovesLeft { get; private set; }
+
+    private bool _isGameOver = false;
 
     private int _currentMultiplierIndex = 0;
     public float CurrentMultiplier => _multiplierLevels[_currentMultiplierIndex];
+    private InputManager _inputManager;
 
     public event Action<int> OnScoreChanged;
     public event Action<int> OnMovesChanged;
     public event Action<float> OnMultiplierChanged;
+    public event Action<bool> OnGameOver;
 
     private float _lastMoveTime;
 
@@ -28,16 +35,22 @@ public class GameManager : MonoBehaviour
     {
         if (Instance == null) Instance = this;
         else Destroy(gameObject);
+
+        _inputManager = FindAnyObjectByType<InputManager>();
     }
 
     private void Start()
     {
+        HighScore = PlayerPrefs.GetInt("HighScore", 0);
         StartGame();
     }
 
     private void Update()
     {
-        HandleMultiplierDecay();
+        if (!_isGameOver)
+        {
+            HandleMultiplierDecay();
+        }
     }
 
     public void StartGame()
@@ -70,7 +83,8 @@ public class GameManager : MonoBehaviour
     {
         if (MovesLeft <= 0)
         {
-            Debug.Log("Game Over! No moves left."); // TODO: Trigger Game Over UI
+            Debug.Log("Game Over! No moves left.");
+            StartCoroutine(EndGameRoutine());
             return false;
         }
 
@@ -111,5 +125,34 @@ public class GameManager : MonoBehaviour
 
         Score += totalPoints;
         OnScoreChanged?.Invoke(Score);
+    }
+    private IEnumerator EndGameRoutine()
+    {
+        _isGameOver = true;
+
+        _inputManager.SetInputActive(false);
+        yield return new WaitForSeconds(1.0f);
+
+        // Check for High Score
+        bool isNewRecord = false;
+        if (Score > HighScore)
+        {
+            isNewRecord = true;
+            HighScore = Score;
+            PlayerPrefs.SetInt("HighScore", HighScore);
+            PlayerPrefs.Save();
+        }
+
+        Debug.Log($"Game Over! Score: {Score} | High Score: {HighScore} | New Record: {isNewRecord}");
+
+        // Trigger UI Event
+        OnGameOver?.Invoke(isNewRecord);
+
+        // Wait and Auto Restart
+        yield return new WaitForSeconds(autoRestartDelay);
+
+        DG.Tweening.DOTween.KillAll();
+        // Reload current scene
+        SceneManager.LoadScene(SceneManager.GetActiveScene().name);
     }
 }
