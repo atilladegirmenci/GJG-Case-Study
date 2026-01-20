@@ -2,6 +2,7 @@ using UnityEngine;
 using TMPro;
 using DG.Tweening;
 using UnityEngine.UI;
+using UnityEngine.SocialPlatforms.Impl;
 
 public class UIManager : MonoBehaviour
 {
@@ -25,6 +26,8 @@ public class UIManager : MonoBehaviour
     [SerializeField] private Sprite soundOnSprite;
     [SerializeField] private Sprite soundOffSprite;
 
+    [Header("Exit Panel")]
+    [SerializeField] private GameObject exitPanel;
     private bool _isMuted = false;
 
     // Store initial scales to preserve scene setup
@@ -39,6 +42,7 @@ public class UIManager : MonoBehaviour
         if (multiplierText) _baseMultiScale = multiplierText.transform.localScale;
 
         if (gameOverPanel) gameOverPanel.SetActive(false);
+        if (exitPanel) exitPanel.SetActive(false);
     }
 
     private void Start()
@@ -169,6 +173,19 @@ public class UIManager : MonoBehaviour
 
     public void OnExitButtonClicked()
     {
+        if (exitPanel == null) return;
+
+        exitPanel.SetActive(true);
+
+        // Pop-in Animation
+        exitPanel.transform.localScale = Vector3.zero;
+        exitPanel.transform.DOScale(1f, 0.5f).SetEase(Ease.OutBack);
+
+
+    }
+
+    public void OnExitYesButtonClicked()
+    {
         Debug.Log("Exiting Game...");
         Application.Quit();
 
@@ -176,6 +193,12 @@ public class UIManager : MonoBehaviour
         UnityEditor.EditorApplication.isPlaying = false;
 #endif
     }
+    public void OnExitNoButtonClicked()
+    {
+        exitPanel.transform.DOScale(0.1f, 1f).SetEase(Ease.OutBack);
+        exitPanel.SetActive(false);
+    }
+
 
     #endregion
 }

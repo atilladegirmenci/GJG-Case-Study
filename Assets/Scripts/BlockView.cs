@@ -43,7 +43,6 @@ public class BlockView : MonoBehaviour
             .SetEase(Ease.InQuad)
             .OnComplete(() =>
             {
-                // 2. JELİBON EFEKTİ (SQUASH & STRETCH)
                 transform.DOPunchScale(new Vector3(jellyEffectMagnitude, -jellyEffectMagnitude, 0), jellyEffectDuration, 10, 1);
             });
     }

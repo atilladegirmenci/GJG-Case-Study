@@ -11,6 +11,7 @@ public class AudioManager : MonoBehaviour
     [Header("Clips")]
     public AudioClip backgroundMusic;
     public AudioClip blastSound;
+    public AudioClip dropSound;
 
     private bool _isMuted = false;
 
@@ -42,12 +43,30 @@ public class AudioManager : MonoBehaviour
         }
     }
 
-    public void PlayBlastSound()
+    public void PlayBlastSound(int blastBlockCount)
     {
-        if (sfxSource != null && blastSound != null)
-        {
-            sfxSource.PlayOneShot(blastSound);
-        }
+        if (sfxSource == null || blastSound == null) return;
+
+        sfxSource.pitch = calculatePitch(blastBlockCount);
+        sfxSource.PlayOneShot(blastSound);
+
+    }
+    public void PlayDropSound(int fallingBlockCount)
+    {
+        if (dropSound == null || sfxSource == null || _isMuted) return;
+
+
+        sfxSource.pitch = calculatePitch(fallingBlockCount);
+        sfxSource.PlayOneShot(dropSound);
+    }
+    private float calculatePitch(int blockCount)
+    {
+        float basePitch = 1.1f;
+        float pitchReduction = blockCount * 0.05f;
+
+        float targetPitch = Mathf.Clamp(basePitch - pitchReduction, 0.6f, 1.5f);
+        targetPitch += Random.Range(-0.02f, 0.02f);
+        return targetPitch;
     }
 
     public void ToggleMute()

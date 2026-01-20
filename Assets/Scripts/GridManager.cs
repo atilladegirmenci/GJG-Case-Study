@@ -7,11 +7,13 @@ public class GridManager : MonoBehaviour
 {
     [Header("Core References")]
     [SerializeField] private LevelConfig currentLevelConfig;
-    [SerializeField] private Transform boardContainer;
+    [SerializeField] private Transform _boardContainer;
 
     [Header("Board Dimensions")]
     [SerializeField] private float targetBoardWidth;
-    [SerializeField] private float targetBoardHeight;
+    [SerializeField] public float targetBoardHeight;
+    [SerializeField] private SpriteRenderer boardBackground;
+    [SerializeField] private float boardBackgroundPadding;
 
     [Header("Spacing & Animation")]
     [SerializeField] private float spaceBetweenCols;
@@ -25,10 +27,10 @@ public class GridManager : MonoBehaviour
     private GridNode[,] _grid;
     private float _cellSize;
     private Vector2 _boardOffset;
-    private InputManager _inputManager; // Cached reference
+    private InputManager _inputManager;
 
-    public float CellSize => _cellSize;
-    public Vector2 BoardOffset => _boardOffset;
+    // public float CellSize => _cellSize;
+    //public Vector2 BoardOffset => _boardOffset;
 
 
 
@@ -95,6 +97,16 @@ public class GridManager : MonoBehaviour
         float startY = -(totalBoardHeight / 2f) + (_cellSize / 2f);
 
         _boardOffset = new Vector2(startX, startY);
+
+        if (boardBackground != null)
+        {
+            float bgWidth = totalBoardWidth + (boardBackgroundPadding * 2);
+            float bgHeight = totalBoardHeight + (boardBackgroundPadding * 2);
+
+            boardBackground.size = new Vector2(bgWidth, bgHeight);
+
+            boardBackground.transform.localPosition = new Vector3(0, 0, 2);
+        }
     }
 
     private void CreateGrid()
@@ -126,7 +138,7 @@ public class GridManager : MonoBehaviour
         BlockView view = BlockPool.Instance.GetBlock();
 
         // Setup Transform
-        view.transform.SetParent(boardContainer);
+        view.transform.SetParent(_boardContainer);
         view.transform.position = spawnPosition;
         view.transform.rotation = Quaternion.identity;
         view.name = $"Block_{x}_{y}";
@@ -218,7 +230,7 @@ public class GridManager : MonoBehaviour
         }
         if (AudioManager.Instance != null)
         {
-            AudioManager.Instance.PlayBlastSound();
+            AudioManager.Instance.PlayBlastSound(nodesToBlast.Count);
         }
 
         foreach (GridNode node in nodesToBlast)
@@ -263,6 +275,8 @@ public class GridManager : MonoBehaviour
         int rows = currentLevelConfig.rows;
         int cols = currentLevelConfig.cols;
 
+        int fallingBlockCount = 0;
+
         // SHIFT DOWN
         for (int x = 0; x < cols; x++)
         {
@@ -301,6 +315,8 @@ public class GridManager : MonoBehaviour
                         if (context != null) context.SetCoordinates(x, y);
 
                         node.assignedView.name = $"Block_{x}_{y}";
+
+                        fallingBlockCount++;
                     }
                 }
                 else
@@ -312,14 +328,23 @@ public class GridManager : MonoBehaviour
             }
         }
 
-        yield return new WaitForSeconds(fallTime);
+        if (fallingBlockCount > 0)
+        {
+            // Play sound when they land (after fallTime)
+            DOVirtual.DelayedCall(fallTime, () =>
+            {
+                if (AudioManager.Instance) AudioManager.Instance.PlayDropSound(fallingBlockCount);
+            });
+        }
+
+        yield return new WaitForSeconds(fallTime + 0.1f);
 
         // Visual Update 1: Show new groups formed by falling blocks
         UpdateAllGroupVisuals();
 
         RefillBoard();
 
-        yield return new WaitForSeconds(fallTime);
+        yield return new WaitForSeconds(fallTime + 0.1f);
 
         // Visual Update 2: Show new groups formed by new blocks
         bool hasMoves = UpdateAllGroupVisuals();
@@ -332,14 +357,25 @@ public class GridManager : MonoBehaviour
             yield return new WaitForSeconds(0.5f);
         }
 
-        // Unlock Input
-        if (_inputManager != null) _inputManager.SetInputActive(true);
+
+        if (GameManager.Instance.MovesLeft <= 0)
+        {
+            yield return new WaitForSeconds(1f);
+
+            GameManager.Instance.CheckGameEnd();
+        }
+        else
+        {
+            if (_inputManager != null) _inputManager.SetInputActive(true);
+        }
     }
 
     private void RefillBoard()
     {
         int rows = currentLevelConfig.rows;
         int cols = currentLevelConfig.cols;
+
+        int newBlockCount = 0;
 
         for (int x = 0; x < cols; x++)
         {
@@ -361,8 +397,18 @@ public class GridManager : MonoBehaviour
 
                     // Now command the view to move (Animation Logic belongs here)
                     view.MoveToPosition(targetPos, fallTime);
+
+                    newBlockCount++;
                 }
             }
+        }
+        if (newBlockCount > 0)
+        {
+            // Play sound when they land (after fallTime)
+            DOVirtual.DelayedCall(fallTime, () =>
+            {
+                if (AudioManager.Instance) AudioManager.Instance.PlayDropSound(newBlockCount);
+            });
         }
     }
     private void ShuffleBoard()
@@ -492,9 +538,9 @@ public class GridManager : MonoBehaviour
         Vector3 localPos = new Vector3(xPos, yPos, zDepth);
 
         // Convert to container's world space if parent exists
-        if (boardContainer != null)
+        if (_boardContainer != null)
         {
-            return boardContainer.TransformPoint(localPos);
+            return _boardContainer.TransformPoint(localPos);
         }
 
         return localPos; // if not use world
@@ -508,10 +554,8 @@ public class GridManager : MonoBehaviour
 
     private void OnDrawGizmos()
     {
-        // Sadece showGridPreview açıksa ve Config atalıysa çiz
         if (!showGridPreview || currentLevelConfig == null) return;
 
-        // Grid hesaplamasını simüle et (Değerler değişince anlık güncellenir)
         int rows = currentLevelConfig.rows;
         int cols = currentLevelConfig.cols;
 
@@ -520,7 +564,6 @@ public class GridManager : MonoBehaviour
         float availW = targetBoardWidth - totalGapW;
         float availH = targetBoardHeight - totalGapH;
 
-        // Bölme sıfır hatası olmasın
         if (cols == 0 || rows == 0) return;
 
         float size = Mathf.Min(availW / cols, availH / rows);
@@ -531,10 +574,8 @@ public class GridManager : MonoBehaviour
         float startY = -(totalH / 2f) + (size / 2f);
         Vector2 offset = new Vector2(startX, startY);
 
-        // Grid Rengi (Yeşil)
         Gizmos.color = Color.green;
 
-        // Blokların yerini tel kafes olarak çiz
         for (int x = 0; x < cols; x++)
         {
             for (int y = 0; y < rows; y++)
@@ -544,17 +585,15 @@ public class GridManager : MonoBehaviour
 
                 Vector3 center = new Vector3(xPos, yPos, 0);
 
-                // Eğer boardContainer varsa onun pozisyonuna göre taşı
-                if (boardContainer != null) center = boardContainer.TransformPoint(center);
+                if (_boardContainer != null) center = _boardContainer.TransformPoint(center);
                 else center += transform.position;
 
                 Gizmos.DrawWireCube(center, Vector3.one * size);
             }
         }
 
-        // Sınır Çerçevesi (Mavi - Target Width/Height referansı)
-        Gizmos.color = new Color(0, 1, 1, 0.3f); // Cyan, yarı şeffaf
-        Vector3 boardCenter = (boardContainer != null) ? boardContainer.position : transform.position;
+        Gizmos.color = new Color(0, 1, 1, 0.3f); // Cyan
+        Vector3 boardCenter = (_boardContainer != null) ? _boardContainer.position : transform.position;
         Gizmos.DrawCube(boardCenter, new Vector3(targetBoardWidth, targetBoardHeight, 1));
     }
 

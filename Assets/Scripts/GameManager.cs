@@ -2,6 +2,7 @@ using UnityEngine;
 using System;
 using UnityEngine.SceneManagement;
 using System.Collections;
+using Unity.Cinemachine;
 
 public class GameManager : MonoBehaviour
 {
@@ -11,6 +12,9 @@ public class GameManager : MonoBehaviour
     [SerializeField] private LevelConfig levelConfig;
     [SerializeField] private float comboTimeout = 2.0f;
     [SerializeField] private float autoRestartDelay = 3.0f;
+    [Header("Cameras")]
+    [SerializeField] private CinemachineCamera farCamera;
+    [SerializeField] private CinemachineCamera normalCamera;
 
     private readonly float[] _multiplierLevels = { 1.0f, 1.1f, 1.2f, 1.5f, 2.0f, 3.0f, 5.0f };
 
@@ -37,12 +41,17 @@ public class GameManager : MonoBehaviour
         else Destroy(gameObject);
 
         _inputManager = FindAnyObjectByType<InputManager>();
+        normalCamera.Priority = 10;
+        farCamera.Priority = 11;
     }
 
     private void Start()
     {
         HighScore = PlayerPrefs.GetInt("HighScore", 0);
+
+
         StartGame();
+
     }
 
     private void Update()
@@ -63,7 +72,9 @@ public class GameManager : MonoBehaviour
         OnMovesChanged?.Invoke(MovesLeft);
         OnScoreChanged?.Invoke(Score);
         OnMultiplierChanged?.Invoke(CurrentMultiplier);
+        normalCamera.Priority = 12;
     }
+
 
     private void HandleMultiplierDecay()
     {
@@ -81,12 +92,8 @@ public class GameManager : MonoBehaviour
 
     public bool TryUseMove()
     {
-        if (MovesLeft <= 0)
-        {
-            Debug.Log("Game Over! No moves left.");
-            StartCoroutine(EndGameRoutine());
-            return false;
-        }
+
+        if (MovesLeft <= 0) return false;
 
         MovesLeft--;
         OnMovesChanged?.Invoke(MovesLeft);
@@ -108,7 +115,16 @@ public class GameManager : MonoBehaviour
         _lastMoveTime = Time.time;
 
         OnMultiplierChanged?.Invoke(CurrentMultiplier);
+
         return true;
+    }
+    public void CheckGameEnd()
+    {
+        if (MovesLeft <= 0)
+        {
+            Debug.Log("Game Over!");
+            StartCoroutine(EndGameRoutine());
+        }
     }
 
     public void AddScore(int blockCount)
