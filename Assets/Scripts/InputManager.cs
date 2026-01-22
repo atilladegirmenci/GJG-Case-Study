@@ -40,9 +40,6 @@ public class InputManager : MonoBehaviour
         }
     }
 
-    /// <summary>
-    /// Locks/Unlocks input. Called by GridManager during animations.
-    /// </summary>
     public void SetInputActive(bool active)
     {
         _isInputActive = active;

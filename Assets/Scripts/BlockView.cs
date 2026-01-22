@@ -1,10 +1,12 @@
 using UnityEngine;
-using System.Collections;
 using DG.Tweening;
+using System;
+
 
 public class BlockView : MonoBehaviour
 {
 
+    public event Action<BlockView> OnMoveComplete;
     [SerializeField] private SpriteRenderer spriteRenderer;
 
     [Header("VISUAL EFFECETS")]
@@ -35,18 +37,33 @@ public class BlockView : MonoBehaviour
         transform.DOPunchScale(Vector3.one * 0.05f, 0.15f, 10, 1);
     }
 
-    // Gravity animation
+    // Gravity and drop animation
     public void MoveToPosition(Vector3 targetPos, float duration)
     {
         transform.DOKill();
-        transform.DOMove(targetPos, duration)
-            .SetEase(Ease.InQuad)
-            .OnComplete(() =>
-            {
-                transform.DOPunchScale(new Vector3(jellyEffectMagnitude, -jellyEffectMagnitude, 0), jellyEffectDuration, 10, 1);
-            });
+
+        Sequence seq = DOTween.Sequence();
+
+        seq.Append(
+            transform.DOMove(targetPos, duration)
+                .SetEase(Ease.InQuad)
+        );
+
+        seq.Append(
+            transform.DOPunchScale(
+                new Vector3(jellyEffectMagnitude, -jellyEffectMagnitude, 0),
+                jellyEffectDuration,
+                10,
+                1
+            )
+        );
+
+        seq.OnComplete(() =>
+        {
+            OnMoveComplete?.Invoke(this);
+        });
     }
-    // Called on explosion
+
     public void OnBlast()
     {
         transform.DOKill();
@@ -54,7 +71,6 @@ public class BlockView : MonoBehaviour
         var col = GetComponent<Collider2D>();
         if (col) col.enabled = false;
 
-        //particle effects wil be added here 
         transform.DOScale(Vector3.zero, disappearDuration)
             .SetEase(Ease.InBack)
             .OnComplete(() =>

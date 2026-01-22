@@ -49,9 +49,7 @@ public class GameManager : MonoBehaviour
     {
         HighScore = PlayerPrefs.GetInt("HighScore", 0);
 
-
         StartGame();
-
     }
 
     private void Update()
@@ -159,8 +157,6 @@ public class GameManager : MonoBehaviour
             PlayerPrefs.Save();
         }
 
-        Debug.Log($"Game Over! Score: {Score} | High Score: {HighScore} | New Record: {isNewRecord}");
-
         // Trigger UI Event
         OnGameOver?.Invoke(isNewRecord);
 
@@ -168,7 +164,6 @@ public class GameManager : MonoBehaviour
         yield return new WaitForSeconds(autoRestartDelay);
 
         DG.Tweening.DOTween.KillAll();
-        // Reload current scene
         SceneManager.LoadScene(SceneManager.GetActiveScene().name);
     }
 }

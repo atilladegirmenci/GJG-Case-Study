@@ -28,7 +28,9 @@ public class UIManager : MonoBehaviour
 
     [Header("Exit Panel")]
     [SerializeField] private GameObject exitPanel;
+
     private bool _isMuted = false;
+    private InputManager _inputManager;
 
     // Store initial scales to preserve scene setup
     private Vector3 _baseScoreScale;
@@ -43,6 +45,8 @@ public class UIManager : MonoBehaviour
 
         if (gameOverPanel) gameOverPanel.SetActive(false);
         if (exitPanel) exitPanel.SetActive(false);
+
+        _inputManager = FindAnyObjectByType<InputManager>();
     }
 
     private void Start()
@@ -77,7 +81,6 @@ public class UIManager : MonoBehaviour
         if (scoreText) scoreText.transform.DOKill();
         if (movesText) movesText.transform.DOKill();
         if (multiplierText) multiplierText.transform.DOKill();
-
         if (gameOverPanel) gameOverPanel.transform.DOKill();
         if (newRecordObject) newRecordObject.transform.DOKill();
     }
@@ -95,9 +98,7 @@ public class UIManager : MonoBehaviour
         if (movesText == null) return;
 
         movesText.text = remainingMoves.ToString();
-
-        // Turn red if moves are low
-        movesText.color = remainingMoves <= 5 ? Color.red : Color.white;
+        movesText.color = remainingMoves <= 5 ? Color.red : Color.white; // red if moves are low
 
         AnimateText(movesText.transform, _baseMovesScale);
     }
@@ -133,7 +134,6 @@ public class UIManager : MonoBehaviour
 
         gameOverPanel.SetActive(true);
 
-        // Pop-in Animation
         gameOverPanel.transform.localScale = Vector3.zero;
         gameOverPanel.transform.DOScale(1f, 0.5f).SetEase(Ease.OutBack);
 
@@ -145,7 +145,6 @@ public class UIManager : MonoBehaviour
             newRecordObject.SetActive(isNewRecord);
             if (isNewRecord)
             {
-                // Pulse animation
                 newRecordObject.transform.DOScale(1.2f, 0.5f).SetLoops(-1, LoopType.Yoyo);
             }
         }
@@ -177,11 +176,10 @@ public class UIManager : MonoBehaviour
 
         exitPanel.SetActive(true);
 
-        // Pop-in Animation
         exitPanel.transform.localScale = Vector3.zero;
         exitPanel.transform.DOScale(1f, 0.5f).SetEase(Ease.OutBack);
 
-
+        _inputManager.SetInputActive(false);
     }
 
     public void OnExitYesButtonClicked()
@@ -197,6 +195,7 @@ public class UIManager : MonoBehaviour
     {
         exitPanel.transform.DOScale(0.1f, 1f).SetEase(Ease.OutBack);
         exitPanel.SetActive(false);
+        _inputManager.SetInputActive(true);
     }
 
 

@@ -18,20 +18,16 @@ public class LevelConfig : ScriptableObject
 
     private void OnValidate()
     {
-        // 1. KURAL: Maksimum 6 Renk
         if (availableColors.Count > 6)
         {
             Debug.LogWarning($"[LevelConfig] You can't add more than 6 colors! Removed extra items from {name}.");
 
-            // Fazlalıkları sondan sil
             while (availableColors.Count > 6)
             {
                 availableColors.RemoveAt(availableColors.Count - 1);
             }
         }
 
-        // 2. KURAL: Aynı Renk Tekrarı (Duplicate) Kontrolü
-        // Designer yanlışlıkla iki kere "Mavi" eklemiş mi?
         ValidateDuplicates();
     }
 
@@ -39,7 +35,6 @@ public class LevelConfig : ScriptableObject
     {
         if (availableColors == null) return;
 
-        // Benzersizleri bulmak için HashSet kullanıyoruz
         HashSet<ColorPalette> uniqueSet = new HashSet<ColorPalette>();
 
         foreach (var item in availableColors)
