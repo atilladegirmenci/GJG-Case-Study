@@ -13,8 +13,8 @@ MonoBehaviour:
   m_Name: Color_Yellow
   m_EditorClassIdentifier: Assembly-CSharp::ColorPalette
   colorName: Yellow
-  defaultIcon: {fileID: 7985042018138347892, guid: f375e59ce8515a446b87c75ee28d8ed9, type: 3}
-  IconA: {fileID: 414921610477409366, guid: b499f55af65913042bd0c11437362a89, type: 3}
-  IconB: {fileID: -6038182108957047188, guid: e23634bf8c9856945b489937ab616a0c, type: 3}
-  IconC: {fileID: -7586140276444505714, guid: 7ca00e77b77185645a46039e4557013d, type: 3}
-  particleColor: {r: 0.9960785, g: 0.81568635, b: 0, a: 1}
+  defaultIcon: {fileID: 21300000, guid: e442f0de696f2f244acb118d31a4194b, type: 3}
+  IconA: {fileID: 21300000, guid: b52e3d5233afc6241a953a68fa449a2d, type: 3}
+  IconB: {fileID: 21300000, guid: 1a44d05763f5d264eaf3627493779e9c, type: 3}
+  IconC: {fileID: 21300000, guid: d936b2b66ffb9f24397fdbcc17f4e754, type: 3}
+  particleColor: {r: 1, g: 0.8117648, b: 0.03529412, a: 1}

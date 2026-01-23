@@ -36,11 +36,16 @@ public class UIManager : MonoBehaviour
     private Vector3 _baseScoreScale;
     private Vector3 _baseMovesScale;
     private Vector3 _baseMultiScale;
+    private Color _baseMovesColor;
 
     private void Awake()
     {
         if (scoreText) _baseScoreScale = scoreText.transform.localScale;
-        if (movesText) _baseMovesScale = movesText.transform.localScale;
+        if (movesText)
+        {
+            _baseMovesScale = movesText.transform.localScale;
+            _baseMovesColor = movesText.color;
+        }
         if (multiplierText) _baseMultiScale = multiplierText.transform.localScale;
 
         if (gameOverPanel) gameOverPanel.SetActive(false);
@@ -98,7 +103,7 @@ public class UIManager : MonoBehaviour
         if (movesText == null) return;
 
         movesText.text = remainingMoves.ToString();
-        movesText.color = remainingMoves <= 5 ? Color.red : Color.white; // red if moves are low
+        movesText.color = remainingMoves <= 5 ? Color.red : _baseMovesColor; // red if moves are low
 
         AnimateText(movesText.transform, _baseMovesScale);
     }

@@ -485,9 +485,9 @@ public class GridManager : MonoBehaviour
         var palette = currentLevelConfig.availableColors[colorIndex];
         Sprite targetSprite = palette.defaultIcon;
 
-        if (count >= 10) targetSprite = palette.IconC;
-        else if (count >= 8) targetSprite = palette.IconB;
-        else if (count > 4) targetSprite = palette.IconA;
+        if (count >= 8) targetSprite = palette.IconC;
+        else if (count >= 6) targetSprite = palette.IconB;
+        else if (count >= 4) targetSprite = palette.IconA;
 
         foreach (GridNode node in group)
         {

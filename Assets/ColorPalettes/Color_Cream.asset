@@ -1,0 +1,20 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f82f04280fba4814da2d1b05190f8c9f, type: 3}
+  m_Name: Color_Cream
+  m_EditorClassIdentifier: Assembly-CSharp::ColorPalette
+  colorName: Cream
+  defaultIcon: {fileID: 21300000, guid: 804182e9e3ef50b449471ecef6f56ce1, type: 3}
+  IconA: {fileID: 21300000, guid: ff4f9c37cc637a4489530258f579605c, type: 3}
+  IconB: {fileID: 21300000, guid: f9da6fda7b122ad469fadba6e6f996f5, type: 3}
+  IconC: {fileID: 21300000, guid: 4e2da6ce614660f4bb51ca4ac6d7aa21, type: 3}
+  particleColor: {r: 0.9607844, g: 0.7568628, b: 0.43529415, a: 0}

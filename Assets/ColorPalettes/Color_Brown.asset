@@ -1,0 +1,20 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f82f04280fba4814da2d1b05190f8c9f, type: 3}
+  m_Name: Color_Brown
+  m_EditorClassIdentifier: Assembly-CSharp::ColorPalette
+  colorName: Brown
+  defaultIcon: {fileID: 21300000, guid: 9fbbc68c97e29144ca41f02e2273eb5b, type: 3}
+  IconA: {fileID: 21300000, guid: d9c311d7992686046ad97297f5aaf0b7, type: 3}
+  IconB: {fileID: 21300000, guid: 36ef1a346335b32469800e8e6b1cb9d6, type: 3}
+  IconC: {fileID: 21300000, guid: 0a3f9d84eb791874ab24e9368a9ca6d9, type: 3}
+  particleColor: {r: 0.65882355, g: 0.35686275, b: 0.16078432, a: 0}

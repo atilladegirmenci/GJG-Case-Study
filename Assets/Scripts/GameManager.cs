@@ -131,9 +131,9 @@ public class GameManager : MonoBehaviour
 
         // Group Size Bonus
         float sizeBonus = 1.0f;
-        if (blockCount >= 5) sizeBonus = 1.5f;
-        if (blockCount >= 8) sizeBonus = 2.0f;
-        if (blockCount >= 10) sizeBonus = 3.0f;
+        if (blockCount >= 4) sizeBonus = 1.5f;
+        if (blockCount >= 6) sizeBonus = 2.0f;
+        if (blockCount >= 8) sizeBonus = 3.0f;
 
         int totalPoints = Mathf.FloorToInt(basePoints * sizeBonus * CurrentMultiplier);
 

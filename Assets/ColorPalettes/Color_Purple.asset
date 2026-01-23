@@ -13,8 +13,8 @@ MonoBehaviour:
   m_Name: Color_Purple
   m_EditorClassIdentifier: Assembly-CSharp::ColorPalette
   colorName: Purple
-  defaultIcon: {fileID: 8161472552560778960, guid: bc18c767afdf27c40a039085119572d6, type: 3}
-  IconA: {fileID: -6416537123964203564, guid: 47a63a5a7de4f964b88d44b78a7df26e, type: 3}
-  IconB: {fileID: -2693315669398477313, guid: 21b5620d5ed762142a93aad5e4d75ee1, type: 3}
-  IconC: {fileID: 1386842339749069192, guid: ec95b1b972f62ba42a5f4dd4081e2b39, type: 3}
-  particleColor: {r: 0.5803922, g: 0.03137255, b: 0.9058824, a: 1}
+  defaultIcon: {fileID: 21300000, guid: f00e6b5227a418e4caf4277a5a268391, type: 3}
+  IconA: {fileID: 21300000, guid: 2b90e3c7527f12b459ab61df70c75928, type: 3}
+  IconB: {fileID: 21300000, guid: 642e3a0ceb5616f4b8dbb6f78e737cc9, type: 3}
+  IconC: {fileID: 21300000, guid: 30ad029585b995642bae85f8a2a2c9ed, type: 3}
+  particleColor: {r: 0.6784314, g: 0.06666667, b: 0.8941177, a: 1}

@@ -13,8 +13,8 @@ MonoBehaviour:
   m_Name: Color_Pink
   m_EditorClassIdentifier: Assembly-CSharp::ColorPalette
   colorName: Pink
-  defaultIcon: {fileID: 742919511911846744, guid: 7627dd1893d28b047a71b0e356dceed0, type: 3}
-  IconA: {fileID: 3519922619171193912, guid: d9ca09331aeaf9d4a9e48cac40bed99e, type: 3}
-  IconB: {fileID: -578229812787739823, guid: e1349de7060dce2428888db69383ab03, type: 3}
-  IconC: {fileID: -7755864299962720444, guid: 011925a71dbdfbf48b001b1a96f5f8c5, type: 3}
-  particleColor: {r: 1, g: 0.38431376, b: 0.85098046, a: 1}
+  defaultIcon: {fileID: 21300000, guid: fae32284c2990a24186bd56f1604f91a, type: 3}
+  IconA: {fileID: 21300000, guid: 7749c9af80374474d81a825109302130, type: 3}
+  IconB: {fileID: 21300000, guid: 9e8f1c6857158a541946f696e2f3f395, type: 3}
+  IconC: {fileID: 21300000, guid: 1df2841cde6a0dd46b53ccf212e4eb1e, type: 3}
+  particleColor: {r: 0.9058824, g: 0.25882354, b: 0.70980394, a: 1}

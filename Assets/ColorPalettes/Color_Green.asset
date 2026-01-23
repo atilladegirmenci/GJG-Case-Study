@@ -13,8 +13,8 @@ MonoBehaviour:
   m_Name: Color_Green
   m_EditorClassIdentifier: Assembly-CSharp::ColorPalette
   colorName: Green
-  defaultIcon: {fileID: -7364823422338184377, guid: f2e2f040b9922474da3beb08dabfc891, type: 3}
-  IconA: {fileID: 3291406690555587084, guid: 038fbe72a8b910c47b506dce193172f1, type: 3}
-  IconB: {fileID: -2176861220364285743, guid: 651efa7d4110ef440acb5cc47104114d, type: 3}
-  IconC: {fileID: 6787462199040882907, guid: c81c2c879ae0e8948b35e44d2c6e8535, type: 3}
-  particleColor: {r: 0.6117647, g: 0.74509805, b: 0.0627451, a: 1}
+  defaultIcon: {fileID: 21300000, guid: aedb725fc2a139d4ba1384d06a0badd6, type: 3}
+  IconA: {fileID: 21300000, guid: 0e00e22c2302c4c429576e0e04ff4834, type: 3}
+  IconB: {fileID: 21300000, guid: 8e4d7a214497dde499c3e359c7823b3f, type: 3}
+  IconC: {fileID: 21300000, guid: b076943de82e70c47aa52cce1843c42c, type: 3}
+  particleColor: {r: 0.21568629, g: 0.74509805, b: 0.043137256, a: 1}

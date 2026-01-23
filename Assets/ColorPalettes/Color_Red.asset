@@ -13,8 +13,8 @@ MonoBehaviour:
   m_Name: Color_Red
   m_EditorClassIdentifier: Assembly-CSharp::ColorPalette
   colorName: Red
-  defaultIcon: {fileID: 887387325851772620, guid: 54394d06dbe375a489d0cba3e5248cda, type: 3}
-  IconA: {fileID: 5413993767572339121, guid: bf3e92253283a414d8525affa82ab67e, type: 3}
-  IconB: {fileID: -8329150480449018202, guid: 2acb2a0e1a38c6e4bb6ac93d07b90cc4, type: 3}
-  IconC: {fileID: -257787592545182917, guid: ab0cf810cd12c0741908de2a5abb2f8d, type: 3}
-  particleColor: {r: 0.8588236, g: 0.10980393, b: 0.06666667, a: 1}
+  defaultIcon: {fileID: 21300000, guid: 73be31b43671a48419b4262ad1d3a869, type: 3}
+  IconA: {fileID: 21300000, guid: 66eb32c73d649cd4f9fbd5f3e032498f, type: 3}
+  IconB: {fileID: 21300000, guid: bf01137e22486ae4ea7bc10197c7ede7, type: 3}
+  IconC: {fileID: 21300000, guid: a81346d5e634cb5488aaf5635cc229a0, type: 3}
+  particleColor: {r: 0.75294125, g: 0.18431373, b: 0.050980397, a: 1}
